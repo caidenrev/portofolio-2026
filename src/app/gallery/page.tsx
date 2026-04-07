@@ -1,10 +1,10 @@
 import { Flex, Meta, Schema } from "@once-ui-system/core";
 import GalleryView from "@/components/gallery/GalleryView";
 import { baseURL, gallery, person } from "@/resources";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import { getAdminPortfolioSettings } from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.galleryTitle || gallery.title,
     description: settings.site.galleryDescription || gallery.description,
@@ -15,7 +15,7 @@ export async function generateMetadata() {
 }
 
 export default async function Gallery() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return (
     <Flex maxWidth="l">
       <Schema

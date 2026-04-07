@@ -1,10 +1,10 @@
 import { Column, Meta, Schema } from "@once-ui-system/core";
 import { baseURL, about, person } from "@/resources";
 import { AboutClient } from "@/components/about/AboutClient";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import { getAdminPortfolioSettings } from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.aboutTitle || about.title,
     description: settings.site.aboutDescription || about.description,
@@ -15,7 +15,7 @@ export async function generateMetadata() {
 }
 
 export default async function About() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return (
     <Column maxWidth="m">
       <Schema

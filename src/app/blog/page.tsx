@@ -2,10 +2,10 @@ import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { Mailchimp } from "@/components";
 import { Posts } from "@/components/blog/Posts";
 import { baseURL, blog, person, newsletter } from "@/resources";
-import { getPublicPortfolioPosts, getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import { getAdminPortfolioPosts, getAdminPortfolioSettings } from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.blogTitle || blog.title,
     description: settings.site.blogDescription || blog.description,
@@ -16,8 +16,8 @@ export async function generateMetadata() {
 }
 
 export default async function Blog() {
-  const settings = await getPublicPortfolioSettings();
-  const initialPosts = await getPublicPortfolioPosts();
+  const settings = await getAdminPortfolioSettings();
+  const initialPosts = await getAdminPortfolioPosts();
 
   return (
     <Column maxWidth="m" paddingTop="24">

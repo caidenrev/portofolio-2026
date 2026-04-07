@@ -15,10 +15,10 @@ import {
 } from "@once-ui-system/core";
 import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import { getAdminPortfolioSettings } from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.homeTitle || home.title,
     description: settings.site.homeDescription || home.description,

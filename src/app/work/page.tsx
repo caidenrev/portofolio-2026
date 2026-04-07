@@ -1,10 +1,13 @@
 import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { baseURL, about, person, work } from "@/resources";
 import { Projects } from "@/components/work/Projects";
-import { getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import {
+  getAdminPortfolioProjects,
+  getAdminPortfolioSettings,
+} from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.workTitle || work.title,
     description: settings.site.workDescription || work.description,
@@ -15,8 +18,8 @@ export async function generateMetadata() {
 }
 
 export default async function Work() {
-  const settings = await getPublicPortfolioSettings();
-  const initialProjects = await getPublicPortfolioProjects();
+  const settings = await getAdminPortfolioSettings();
+  const initialProjects = await getAdminPortfolioProjects();
 
   return (
     <Column maxWidth="m" paddingTop="24">

@@ -8,10 +8,13 @@ import {
 } from "@once-ui-system/core";
 import { baseURL, blog } from "@/resources";
 import type { Metadata } from "next";
-import { getPublicPortfolioPosts, getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import {
+  getAdminPortfolioPosts,
+  getAdminPortfolioSettings,
+} from "@/lib/firebase/admin-portfolio";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = await getPublicPortfolioPosts();
+  const posts = await getAdminPortfolioPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -25,7 +28,7 @@ export async function generateMetadata({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const posts = await getPublicPortfolioPosts();
+  const posts = await getAdminPortfolioPosts();
   const post = posts.find((item) => item.slug === slugPath);
 
   if (!post || post.status === "draft") {
@@ -48,13 +51,13 @@ export async function generateMetadata({
 }
 
 export default async function Blog({ params }: { params: Promise<{ slug: string | string[] }> }) {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   const routeParams = await params;
   const slugPath = Array.isArray(routeParams.slug)
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const initialPosts = await getPublicPortfolioPosts();
+  const initialPosts = await getAdminPortfolioPosts();
   const initialPost =
     initialPosts.find((post) => post.slug === slugPath && post.status !== "draft") ?? null;
 

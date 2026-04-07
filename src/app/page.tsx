@@ -15,10 +15,14 @@ import { home, about, person, baseURL, routes } from "@/resources";
 import { HomeIntro, Mailchimp } from "@/components";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
-import { getPublicPortfolioPosts, getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import {
+  getAdminPortfolioPosts,
+  getAdminPortfolioProjects,
+  getAdminPortfolioSettings,
+} from "@/lib/firebase/admin-portfolio";
 
 export async function generateMetadata() {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   return Meta.generate({
     title: settings.site.homeTitle || home.title,
     description: settings.site.homeDescription || home.description,
@@ -29,9 +33,9 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  const settings = await getPublicPortfolioSettings();
-  const initialProjects = await getPublicPortfolioProjects();
-  const initialPosts = await getPublicPortfolioPosts();
+  const settings = await getAdminPortfolioSettings();
+  const initialProjects = await getAdminPortfolioProjects();
+  const initialPosts = await getAdminPortfolioPosts();
 
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">

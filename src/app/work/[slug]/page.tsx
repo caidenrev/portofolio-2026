@@ -2,10 +2,13 @@ import { Meta, Schema, Column } from "@once-ui-system/core";
 import { baseURL, work } from "@/resources";
 import type { Metadata } from "next";
 import { ProjectDetailClient } from "@/components";
-import { getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
+import {
+  getAdminPortfolioProjects,
+  getAdminPortfolioSettings,
+} from "@/lib/firebase/admin-portfolio";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = await getPublicPortfolioProjects();
+  const posts = await getAdminPortfolioProjects();
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -19,7 +22,7 @@ export async function generateMetadata({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const posts = await getPublicPortfolioProjects();
+  const posts = await getAdminPortfolioProjects();
   const post = posts.find((item) => item.slug === slugPath);
 
   if (!post) {
@@ -46,13 +49,13 @@ export default async function Project({
 }: {
   params: Promise<{ slug: string | string[] }>;
 }) {
-  const settings = await getPublicPortfolioSettings();
+  const settings = await getAdminPortfolioSettings();
   const routeParams = await params;
   const slugPath = Array.isArray(routeParams.slug)
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const initialProjects = await getPublicPortfolioProjects();
+  const initialProjects = await getAdminPortfolioProjects();
   const initialProject = initialProjects.find((post) => post.slug === slugPath) ?? null;
 
   return (
