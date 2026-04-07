@@ -28,6 +28,7 @@ import {
   updatePortfolioProject,
 } from "@/lib/firebase/portfolio";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { slugify } from "@/lib/slugify";
 import { DashboardLoginCard } from "./DashboardLoginCard";
 import { DashboardStatusCard } from "./DashboardStatusCard";
 import { ExperienceSection } from "./ExperienceSection";
@@ -75,6 +76,9 @@ const emptyPost: PortfolioPost = {
   publishedAt: new Date().toISOString().slice(0, 10),
   image: "",
   tag: "",
+  status: "published",
+  seoTitle: "",
+  seoDescription: "",
 };
 
 const emptyGalleryItem: PortfolioGalleryItem = {
@@ -913,6 +917,12 @@ export function DashboardClient() {
             void handleSavePost();
           }}
           onReset={() => setPostDraft(emptyPost)}
+          onGenerateSlug={() =>
+            setPostDraft((current) => ({
+              ...current,
+              slug: slugify(current.title),
+            }))
+          }
         />
       )}
 

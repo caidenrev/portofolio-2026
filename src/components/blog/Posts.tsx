@@ -44,9 +44,11 @@ export function Posts({
   }, [initialPosts]);
 
   // Exclude by slug (exact match)
+  const visibleBlogs = allBlogs.filter((post) => post.status !== "draft");
+
   const filteredBlogs = exclude.length
-    ? allBlogs.filter((post) => !exclude.includes(post.slug))
-    : allBlogs;
+    ? visibleBlogs.filter((post) => !exclude.includes(post.slug))
+    : visibleBlogs;
 
   const sortedBlogs = [...filteredBlogs].sort((a, b) => {
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();

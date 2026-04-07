@@ -83,6 +83,9 @@ export type PortfolioPost = {
   publishedAt: string;
   image?: string;
   tag?: string;
+  status?: "draft" | "published";
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 export type PortfolioGalleryItem = {

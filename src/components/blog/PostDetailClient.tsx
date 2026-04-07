@@ -88,6 +88,11 @@ export function PostDetailClient({
         <SmartLink href="/blog">
           <Text variant="label-strong-m">Blog</Text>
         </SmartLink>
+        {post.status === "draft" && (
+          <Text variant="label-strong-s" onBackground="danger-weak">
+            Draft preview
+          </Text>
+        )}
         <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
           {post.publishedAt && formatDate(post.publishedAt)}
         </Text>

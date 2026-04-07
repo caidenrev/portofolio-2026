@@ -28,7 +28,7 @@ export async function generateMetadata({
   const posts = await getPublicPortfolioPosts();
   const post = posts.find((item) => item.slug === slugPath);
 
-  if (!post) {
+  if (!post || post.status === "draft") {
     return Meta.generate({
       title: blog.title,
       description: blog.description,
@@ -39,10 +39,10 @@ export async function generateMetadata({
   }
 
   return Meta.generate({
-    title: post.title,
-    description: post.summary,
+    title: post.seoTitle || post.title,
+    description: post.seoDescription || post.summary,
     baseURL: baseURL,
-    image: post.image || `/api/og/generate?title=${post.title}`,
+    image: post.image || `/api/og/generate?title=${post.seoTitle || post.title}`,
     path: `${blog.path}/${post.slug}`,
   });
 }
@@ -55,7 +55,8 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
     : routeParams.slug || "";
 
   const initialPosts = await getPublicPortfolioPosts();
-  const initialPost = initialPosts.find((post) => post.slug === slugPath) ?? null;
+  const initialPost =
+    initialPosts.find((post) => post.slug === slugPath && post.status !== "draft") ?? null;
 
   return (
     <Row fillWidth>
@@ -66,11 +67,11 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
             as="blogPosting"
             baseURL={baseURL}
             path={`${blog.path}/${slugPath}`}
-            title={initialPost?.title ?? blog.title}
-            description={initialPost?.summary ?? blog.description}
+            title={initialPost?.seoTitle ?? initialPost?.title ?? blog.title}
+            description={initialPost?.seoDescription ?? initialPost?.summary ?? blog.description}
             datePublished={initialPost?.publishedAt}
             dateModified={initialPost?.publishedAt}
-            image={initialPost?.image || `/api/og/generate?title=${encodeURIComponent(initialPost?.title ?? blog.title)}`}
+            image={initialPost?.image || `/api/og/generate?title=${encodeURIComponent(initialPost?.seoTitle ?? initialPost?.title ?? blog.title)}`}
             author={{
               name: settings.profile.name,
               url: `${baseURL}/about`,
