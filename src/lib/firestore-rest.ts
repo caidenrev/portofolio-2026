@@ -63,7 +63,7 @@ export async function getPublicPortfolioSettings() {
 
   try {
     const response = await fetch(`${config.baseUrl}/settings/portfolio?key=${config.apiKey}`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -85,7 +85,7 @@ async function getPublicCollection<T>(collectionName: string) {
 
   try {
     const response = await fetch(`${config.baseUrl}/${collectionName}?key=${config.apiKey}`, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
