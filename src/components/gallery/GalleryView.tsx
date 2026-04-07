@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Media, MasonryGrid } from "@once-ui-system/core";
 import { gallery } from "@/resources";
 import { getPortfolioGallery } from "@/lib/firebase/portfolio";
-import { PortfolioGalleryItem } from "@/types";
+import type { PortfolioGalleryItem } from "@/types";
 
 const fallbackImages = gallery.images as PortfolioGalleryItem[];
 
@@ -35,6 +35,7 @@ export default function GalleryView({ initialImages = fallbackImages }: { initia
           enlarge
           priority={index < 10}
           sizes="(max-width: 560px) 100vw, 50vw"
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           key={index}
           radius="m"
           aspectRatio={image.orientation === "horizontal" ? "16 / 9" : "3 / 4"}
