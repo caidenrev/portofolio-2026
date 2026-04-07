@@ -14,7 +14,7 @@ import {
 import { baseURL, blog, person } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
 import { CustomMDX, ScrollToHash } from "@/components";
-import { PortfolioPost } from "@/types";
+import type { PortfolioPost } from "@/types";
 import { getPortfolioPostBySlug } from "@/lib/firebase/portfolio";
 import { Posts } from "./Posts";
 import { ShareSection } from "./ShareSection";

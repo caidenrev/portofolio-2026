@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Grid } from "@once-ui-system/core";
 import Post from "./Post";
 import { getPortfolioPosts } from "@/lib/firebase/portfolio";
-import { PortfolioPost } from "@/types";
+import type { PortfolioPost } from "@/types";
 
 interface PostsProps {
   range?: [number] | [number, number];
@@ -53,15 +53,15 @@ export function Posts({
     ? sortedBlogs.slice(range[0] - 1, range.length === 2 ? range[1] : sortedBlogs.length)
     : sortedBlogs;
 
+  if (displayedBlogs.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      {displayedBlogs.length > 0 && (
-        <Grid columns={columns} s={{ columns: 1 }} fillWidth marginBottom="40" gap="16">
-          {displayedBlogs.map((post) => (
-            <Post key={post.slug} post={post} thumbnail={thumbnail} direction={direction} />
-          ))}
-        </Grid>
-      )}
-    </>
+    <Grid columns={columns} s={{ columns: 1 }} fillWidth marginBottom="40" gap="16">
+      {displayedBlogs.map((post) => (
+        <Post key={post.slug} post={post} thumbnail={thumbnail} direction={direction} />
+      ))}
+    </Grid>
   );
 }

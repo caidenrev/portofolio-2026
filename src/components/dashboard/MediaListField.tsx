@@ -41,6 +41,12 @@ export function MediaListField({
     onChange(nextValues);
   };
 
+  const mediaEntries = values.reduce<Array<{ value: string; occurrence: number }>>((entries, value) => {
+    const occurrence = entries.filter((entry) => entry.value === value).length;
+    entries.push({ value, occurrence });
+    return entries;
+  }, []);
+
   return (
     <>
       <Row gap="12" wrap>
@@ -57,9 +63,9 @@ export function MediaListField({
             Preview media. Kamu bisa drag and drop untuk mengubah urutan.
           </Text>
           <Row gap="12" wrap>
-            {values.map((value, index) => (
+            {mediaEntries.map(({ value, occurrence }, index) => (
               <Column
-                key={`${value}-${index}`}
+                key={`${value}-${occurrence}`}
                 draggable
                 gap="8"
                 border="neutral-alpha-weak"

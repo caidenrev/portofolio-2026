@@ -35,7 +35,9 @@ export function CloudinaryUploadButton({
       if (onUploadedMany) {
         onUploadedMany(urls);
       } else {
-        urls.forEach((url) => onUploaded(url));
+        for (const url of urls) {
+          onUploaded(url);
+        }
       }
       addToast({
         variant: "success",

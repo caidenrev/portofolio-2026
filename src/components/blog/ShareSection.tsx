@@ -99,9 +99,9 @@ export function ShareSection({ title, url }: ShareSectionProps) {
 
   // Get enabled platforms
   const enabledPlatforms = Object.entries(socialSharing.platforms)
-    .filter(([_, enabled]) => enabled && _ !== 'copyLink')
+    .filter(([platformKey, enabled]) => enabled && platformKey !== "copyLink")
     .map(([platformKey]) => ({ key: platformKey, ...socialPlatforms[platformKey] }))
-    .filter(platform => platform.name); // Filter out platforms that don't exist in our definitions
+    .filter((platform) => platform.name);
 
   return (
     <Row fillWidth center gap="16" marginTop="32" marginBottom="16">
@@ -109,8 +109,14 @@ export function ShareSection({ title, url }: ShareSectionProps) {
         Share this post:
       </Text>
       <Row data-border="rounded" gap="16" horizontal="center" wrap>
-        {enabledPlatforms.map((platform, index) => (
-          <Button key={index} variant="secondary" size="s" href={platform.generateUrl(title, url)} prefixIcon={platform.icon} />
+        {enabledPlatforms.map((platform) => (
+          <Button
+            key={platform.key}
+            variant="secondary"
+            size="s"
+            href={platform.generateUrl(title, url)}
+            prefixIcon={platform.icon}
+          />
         ))}
         
         {socialSharing.platforms.copyLink && (
