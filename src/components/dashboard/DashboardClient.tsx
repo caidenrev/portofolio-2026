@@ -22,6 +22,7 @@ import {
   getPortfolioProjects,
   getPortfolioSettings,
   savePortfolioSettings,
+  subscribeToPortfolioPosts,
   updatePortfolioGalleryItem,
   updatePortfolioPost,
   updatePortfolioProject,
@@ -277,6 +278,26 @@ export function DashboardClient() {
     void loadDashboardData();
   }, [currentUser, addToast]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      const unsubscribe = subscribeToPortfolioPosts((firestorePosts) => {
+        setPosts(
+          [...firestorePosts].sort((left, right) =>
+            right.publishedAt.localeCompare(left.publishedAt),
+          ),
+        );
+      });
+
+      return unsubscribe;
+    } catch {
+      return () => undefined;
+    }
+  }, [currentUser]);
+
   const handleLogin = async () => {
     setSubmitting(true);
     setError(undefined);
@@ -495,8 +516,6 @@ export function DashboardClient() {
         await createPortfolioPost(postDraft);
       }
 
-      const refreshedPosts = await getPortfolioPosts();
-      setPosts([...refreshedPosts].sort((left, right) => right.publishedAt.localeCompare(left.publishedAt)));
       setPostDraft(emptyPost);
       addToast({
         variant: "success",
@@ -517,8 +536,6 @@ export function DashboardClient() {
     setSubmitting(true);
     try {
       await deletePortfolioPost(id);
-      const refreshedPosts = await getPortfolioPosts();
-      setPosts([...refreshedPosts].sort((left, right) => right.publishedAt.localeCompare(left.publishedAt)));
       if (postDraft.id === id) {
         setPostDraft(emptyPost);
       }

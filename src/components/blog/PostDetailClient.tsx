@@ -15,7 +15,7 @@ import { baseURL, blog, person } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
 import { CustomMDX, ScrollToHash } from "@/components";
 import type { PortfolioPost } from "@/types";
-import { getPortfolioPostBySlug } from "@/lib/firebase/portfolio";
+import { subscribeToPortfolioPostBySlug } from "@/lib/firebase/portfolio";
 import { Posts } from "./Posts";
 import { ShareSection } from "./ShareSection";
 
@@ -31,18 +31,21 @@ export function PostDetailClient({
   const [post, setPost] = useState<PortfolioPost | null>(initialPost);
 
   useEffect(() => {
-    const loadPost = async () => {
-      try {
-        const firestorePost = await getPortfolioPostBySlug(slug);
+    try {
+      const unsubscribe = subscribeToPortfolioPostBySlug(slug, (firestorePost) => {
         if (firestorePost) {
           setPost(firestorePost);
+          return;
         }
-      } catch {
-        setPost(initialPost);
-      }
-    };
 
-    void loadPost();
+        setPost(initialPost);
+      });
+
+      return unsubscribe;
+    } catch {
+      setPost(initialPost);
+      return () => undefined;
+    }
   }, [slug, initialPost]);
 
   if (!post) {

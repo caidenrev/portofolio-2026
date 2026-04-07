@@ -9,6 +9,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   setDoc,
   updateDoc,
@@ -62,6 +63,23 @@ export async function getPortfolioProjects() {
 
 export async function getPortfolioPosts() {
   return getCollectionItems<PortfolioPost>(portfolioCollections.posts);
+}
+
+export function subscribeToPortfolioPosts(
+  callback: (posts: Array<PortfolioPost & { id: string }>) => void,
+) {
+  const collectionRef = collection(getFirebaseDb(), portfolioCollections.posts).withConverter(
+    firestoreConverter<PortfolioPost>(),
+  ) as CollectionReference<PortfolioPost>;
+
+  return onSnapshot(collectionRef, (snapshot) => {
+    callback(
+      snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
+      })),
+    );
+  });
 }
 
 export async function getPortfolioGallery() {
@@ -151,4 +169,18 @@ export async function getPortfolioPostBySlug(slug: string) {
   const snapshot = await getDocs(query(collectionRef, where("slug", "==", slug)));
   const document = snapshot.docs[0];
   return document ? { id: document.id, ...document.data() } : null;
+}
+
+export function subscribeToPortfolioPostBySlug(
+  slug: string,
+  callback: (post: (PortfolioPost & { id: string }) | null) => void,
+) {
+  const collectionRef = collection(getFirebaseDb(), portfolioCollections.posts).withConverter(
+    firestoreConverter<PortfolioPost>(),
+  ) as CollectionReference<PortfolioPost>;
+
+  return onSnapshot(query(collectionRef, where("slug", "==", slug)), (snapshot) => {
+    const document = snapshot.docs[0];
+    callback(document ? { id: document.id, ...document.data() } : null);
+  });
 }

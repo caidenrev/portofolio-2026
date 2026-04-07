@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Grid } from "@once-ui-system/core";
 import Post from "./Post";
-import { getPortfolioPosts } from "@/lib/firebase/portfolio";
+import { subscribeToPortfolioPosts } from "@/lib/firebase/portfolio";
 import type { PortfolioPost } from "@/types";
 
 interface PostsProps {
@@ -26,18 +26,21 @@ export function Posts({
   const [allBlogs, setAllBlogs] = useState<PortfolioPost[]>(initialPosts);
 
   useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        const firestorePosts = await getPortfolioPosts();
+    try {
+      const unsubscribe = subscribeToPortfolioPosts((firestorePosts) => {
         if (firestorePosts.length > 0) {
           setAllBlogs(firestorePosts);
+          return;
         }
-      } catch {
-        setAllBlogs(initialPosts);
-      }
-    };
 
-    void loadPosts();
+        setAllBlogs(initialPosts);
+      });
+
+      return unsubscribe;
+    } catch {
+      setAllBlogs(initialPosts);
+      return () => undefined;
+    }
   }, [initialPosts]);
 
   // Exclude by slug (exact match)
