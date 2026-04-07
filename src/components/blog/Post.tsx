@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, Column, Media, Row, Avatar, Text } from "@once-ui-system/core";
 import { formatDate } from "@/utils/formatDate";
-import { person } from "@/resources";
 import type { PortfolioPost } from "@/types";
+import { getPortfolioSettings } from "@/lib/firebase/portfolio";
+import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
 
 interface PostProps {
   post: PortfolioPost;
@@ -12,6 +14,28 @@ interface PostProps {
 }
 
 export default function Post({ post, thumbnail, direction }: PostProps) {
+  const [authorName, setAuthorName] = useState(defaultPortfolioSettings.profile.name);
+  const [authorAvatar, setAuthorAvatar] = useState(defaultPortfolioSettings.profile.avatar);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await getPortfolioSettings();
+        if (settings?.profile.name) {
+          setAuthorName(settings.profile.name);
+        }
+        if (settings?.profile.avatar) {
+          setAuthorAvatar(settings.profile.avatar);
+        }
+      } catch {
+        setAuthorName(defaultPortfolioSettings.profile.name);
+        setAuthorAvatar(defaultPortfolioSettings.profile.avatar);
+      }
+    };
+
+    void loadSettings();
+  }, []);
+
   return (
     <Card
       fillWidth
@@ -42,8 +66,8 @@ export default function Post({ post, thumbnail, direction }: PostProps) {
         <Column maxWidth={28} paddingY="24" paddingX="l" gap="20" vertical="center">
           <Row gap="24" vertical="center">
             <Row vertical="center" gap="16">
-              <Avatar src={person.avatar} size="s" />
-              <Text variant="label-default-s">{person.name}</Text>
+              <Avatar src={authorAvatar} size="s" />
+              <Text variant="label-default-s">{authorName}</Text>
             </Row>
             <Text variant="body-default-xs" onBackground="neutral-weak">
               {formatDate(post.publishedAt, false)}

@@ -7,29 +7,12 @@ import {
   Row,
 } from "@once-ui-system/core";
 import { baseURL, blog } from "@/resources";
-import { getPosts } from "@/utils/utils";
-import { Metadata } from "next";
-import { PortfolioPost } from "@/types";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
-
-function getLocalPosts(): PortfolioPost[] {
-  return getPosts(["src", "app", "blog", "posts"]).map((post) => ({
-    slug: post.slug,
-    title: post.metadata.title,
-    subtitle: post.metadata.subtitle,
-    summary: post.metadata.summary,
-    content: post.content,
-    publishedAt: post.metadata.publishedAt,
-    image: post.metadata.image,
-    tag: post.metadata.tag,
-  }));
-}
+import type { Metadata } from "next";
+import { getPublicPortfolioPosts, getPublicPortfolioSettings } from "@/lib/firestore-rest";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = getPosts(["src", "app", "blog", "posts"]);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  const posts = await getPublicPortfolioPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -42,8 +25,8 @@ export async function generateMetadata({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const posts = getLocalPosts();
-  let post = posts.find((post) => post.slug === slugPath);
+  const posts = await getPublicPortfolioPosts();
+  const post = posts.find((item) => item.slug === slugPath);
 
   if (!post) {
     return Meta.generate({
@@ -71,7 +54,7 @@ export default async function Blog({ params }: { params: Promise<{ slug: string 
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const initialPosts = getLocalPosts();
+  const initialPosts = await getPublicPortfolioPosts();
   const initialPost = initialPosts.find((post) => post.slug === slugPath) ?? null;
 
   return (

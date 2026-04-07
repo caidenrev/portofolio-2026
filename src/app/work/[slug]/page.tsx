@@ -1,31 +1,12 @@
-import { getPosts } from "@/utils/utils";
 import { Meta, Schema, Column } from "@once-ui-system/core";
 import { baseURL, work } from "@/resources";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { ProjectDetailClient } from "@/components";
-import { PortfolioProject } from "@/types";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
-
-function getLocalProjects(): PortfolioProject[] {
-  return getPosts(["src", "app", "work", "projects"]).map((post) => ({
-    slug: post.slug,
-    title: post.metadata.title,
-    summary: post.metadata.summary,
-    content: post.content,
-    publishedAt: post.metadata.publishedAt,
-    image: post.metadata.image,
-    images: post.metadata.images,
-    tag: post.metadata.tag,
-    link: post.metadata.link,
-    team: post.metadata.team,
-  }));
-}
+import { getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = getPosts(["src", "app", "work", "projects"]);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  const posts = await getPublicPortfolioProjects();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -38,8 +19,8 @@ export async function generateMetadata({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const posts = getLocalProjects();
-  let post = posts.find((post) => post.slug === slugPath);
+  const posts = await getPublicPortfolioProjects();
+  const post = posts.find((item) => item.slug === slugPath);
 
   if (!post) {
     return Meta.generate({
@@ -71,7 +52,7 @@ export default async function Project({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  const initialProjects = getLocalProjects();
+  const initialProjects = await getPublicPortfolioProjects();
   const initialProject = initialProjects.find((post) => post.slug === slugPath) ?? null;
 
   return (

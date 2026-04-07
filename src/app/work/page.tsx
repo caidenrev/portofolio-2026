@@ -1,24 +1,7 @@
 import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { baseURL, about, person, work } from "@/resources";
 import { Projects } from "@/components/work/Projects";
-import { getPosts } from "@/utils/utils";
-import { PortfolioProject } from "@/types";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
-
-function getLocalProjects(): PortfolioProject[] {
-  return getPosts(["src", "app", "work", "projects"]).map((post) => ({
-    slug: post.slug,
-    title: post.metadata.title,
-    summary: post.metadata.summary,
-    content: post.content,
-    publishedAt: post.metadata.publishedAt,
-    image: post.metadata.image,
-    images: post.metadata.images,
-    tag: post.metadata.tag,
-    link: post.metadata.link,
-    team: post.metadata.team,
-  }));
-}
+import { getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
 
 export async function generateMetadata() {
   const settings = await getPublicPortfolioSettings();
@@ -33,7 +16,7 @@ export async function generateMetadata() {
 
 export default async function Work() {
   const settings = await getPublicPortfolioSettings();
-  const initialProjects = getLocalProjects();
+  const initialProjects = await getPublicPortfolioProjects();
 
   return (
     <Column maxWidth="m" paddingTop="24">

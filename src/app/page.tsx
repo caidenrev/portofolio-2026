@@ -15,37 +15,7 @@ import { home, about, person, baseURL, routes } from "@/resources";
 import { HomeIntro, Mailchimp } from "@/components";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
-import { getPosts } from "@/utils/utils";
-import { PortfolioPost, PortfolioProject } from "@/types";
-import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
-
-function getLocalProjects(): PortfolioProject[] {
-  return getPosts(["src", "app", "work", "projects"]).map((post) => ({
-    slug: post.slug,
-    title: post.metadata.title,
-    summary: post.metadata.summary,
-    content: post.content,
-    publishedAt: post.metadata.publishedAt,
-    image: post.metadata.image,
-    images: post.metadata.images,
-    tag: post.metadata.tag,
-    link: post.metadata.link,
-    team: post.metadata.team,
-  }));
-}
-
-function getLocalPosts(): PortfolioPost[] {
-  return getPosts(["src", "app", "blog", "posts"]).map((post) => ({
-    slug: post.slug,
-    title: post.metadata.title,
-    subtitle: post.metadata.subtitle,
-    summary: post.metadata.summary,
-    content: post.content,
-    publishedAt: post.metadata.publishedAt,
-    image: post.metadata.image,
-    tag: post.metadata.tag,
-  }));
-}
+import { getPublicPortfolioPosts, getPublicPortfolioProjects, getPublicPortfolioSettings } from "@/lib/firestore-rest";
 
 export async function generateMetadata() {
   const settings = await getPublicPortfolioSettings();
@@ -60,8 +30,8 @@ export async function generateMetadata() {
 
 export default async function Home() {
   const settings = await getPublicPortfolioSettings();
-  const initialProjects = getLocalProjects();
-  const initialPosts = getLocalPosts();
+  const initialProjects = await getPublicPortfolioProjects();
+  const initialPosts = await getPublicPortfolioPosts();
 
   return (
     <Column maxWidth="m" gap="xl" paddingY="12" horizontal="center">

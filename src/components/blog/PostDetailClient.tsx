@@ -11,11 +11,15 @@ import {
   SmartLink,
   Text,
 } from "@once-ui-system/core";
-import { baseURL, blog, person } from "@/resources";
+import { baseURL, blog } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
 import { CustomMDX, ScrollToHash } from "@/components";
 import type { PortfolioPost } from "@/types";
-import { subscribeToPortfolioPostBySlug } from "@/lib/firebase/portfolio";
+import {
+  getPortfolioSettings,
+  subscribeToPortfolioPostBySlug,
+} from "@/lib/firebase/portfolio";
+import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
 import { Posts } from "./Posts";
 import { ShareSection } from "./ShareSection";
 
@@ -29,6 +33,27 @@ export function PostDetailClient({
   initialPosts?: PortfolioPost[];
 }) {
   const [post, setPost] = useState<PortfolioPost | null>(initialPost);
+  const [authorName, setAuthorName] = useState(defaultPortfolioSettings.profile.name);
+  const [authorAvatar, setAuthorAvatar] = useState(defaultPortfolioSettings.profile.avatar);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await getPortfolioSettings();
+        if (settings?.profile.name) {
+          setAuthorName(settings.profile.name);
+        }
+        if (settings?.profile.avatar) {
+          setAuthorAvatar(settings.profile.avatar);
+        }
+      } catch {
+        setAuthorName(defaultPortfolioSettings.profile.name);
+        setAuthorAvatar(defaultPortfolioSettings.profile.avatar);
+      }
+    };
+
+    void loadSettings();
+  }, []);
 
   useEffect(() => {
     try {
@@ -75,9 +100,9 @@ export function PostDetailClient({
       </Column>
       <Row marginBottom="32" horizontal="center">
         <Row gap="16" vertical="center">
-          <Avatar size="s" src={person.avatar} />
+          <Avatar size="s" src={authorAvatar} />
           <Text variant="label-default-m" onBackground="brand-weak">
-            {person.name}
+            {authorName}
           </Text>
         </Row>
       </Row>
