@@ -7,7 +7,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import type { User } from "firebase/auth";
+import type { Auth, User } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import {
@@ -182,29 +182,55 @@ export function DashboardClient() {
   const [importingSeed, setImportingSeed] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (user) => {
-      if (user) {
-        const tokenResult = await user.getIdTokenResult(true);
-        const userEmail = user.email?.toLowerCase();
-        const hasAdminClaim = tokenResult.claims.admin === true;
-        const hasAdminEmail = Boolean(adminEmail) && userEmail === adminEmail?.toLowerCase();
+    let auth: Auth;
+    try {
+      auth = getFirebaseAuth();
+    } catch (authError) {
+      setCurrentUser(null);
+      setHasCustomClaim(false);
+      setAuthReady(true);
+      setError(
+        authError instanceof Error
+          ? authError.message
+          : "Firebase belum terkonfigurasi dengan benar di environment.",
+      );
+      return () => undefined;
+    }
 
-        if (!hasAdminClaim && !hasAdminEmail) {
-          await signOut(getFirebaseAuth());
-          setCurrentUser(null);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          const tokenResult = await user.getIdTokenResult(true);
+          const userEmail = user.email?.toLowerCase();
+          const hasAdminClaim = tokenResult.claims.admin === true;
+          const hasAdminEmail = Boolean(adminEmail) && userEmail === adminEmail?.toLowerCase();
+
+          if (!hasAdminClaim && !hasAdminEmail) {
+            await signOut(auth);
+            setCurrentUser(null);
+            setHasCustomClaim(false);
+            setError("Akun ini bukan admin dashboard.");
+            setAuthReady(true);
+            return;
+          }
+
+          setHasCustomClaim(hasAdminClaim);
+        } else {
           setHasCustomClaim(false);
-          setError("Akun ini bukan admin dashboard.");
-          setAuthReady(true);
-          return;
         }
 
-        setHasCustomClaim(hasAdminClaim);
-      } else {
+        setCurrentUser(user);
+        setAuthReady(true);
+      } catch (authStateError) {
+        setCurrentUser(null);
         setHasCustomClaim(false);
+        setAuthReady(true);
+        setError(
+          authStateError instanceof Error
+            ? authStateError.message
+            : "Gagal memverifikasi sesi admin Firebase.",
+        );
       }
-
-      setCurrentUser(user);
-      setAuthReady(true);
     });
 
     return unsubscribe;
