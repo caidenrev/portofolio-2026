@@ -1,0 +1,115 @@
+import { PostDetailClient } from "@/components";
+import {
+  Meta,
+  Schema,
+  Column,
+  HeadingNav,
+  Row,
+} from "@once-ui-system/core";
+import { baseURL, blog } from "@/resources";
+import { getPosts } from "@/utils/utils";
+import { Metadata } from "next";
+import { PortfolioPost } from "@/types";
+import { getPublicPortfolioSettings } from "@/lib/firestore-rest";
+
+function getLocalPosts(): PortfolioPost[] {
+  return getPosts(["src", "app", "blog", "posts"]).map((post) => ({
+    slug: post.slug,
+    title: post.metadata.title,
+    subtitle: post.metadata.subtitle,
+    summary: post.metadata.summary,
+    content: post.content,
+    publishedAt: post.metadata.publishedAt,
+    image: post.metadata.image,
+    tag: post.metadata.tag,
+  }));
+}
+
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  const posts = getPosts(["src", "app", "blog", "posts"]);
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string | string[] }>;
+}): Promise<Metadata> {
+  const routeParams = await params;
+  const slugPath = Array.isArray(routeParams.slug)
+    ? routeParams.slug.join("/")
+    : routeParams.slug || "";
+
+  const posts = getLocalPosts();
+  let post = posts.find((post) => post.slug === slugPath);
+
+  if (!post) {
+    return Meta.generate({
+      title: blog.title,
+      description: blog.description,
+      baseURL,
+      image: `/api/og/generate?title=${encodeURIComponent(blog.title)}`,
+      path: `${blog.path}/${slugPath}`,
+    });
+  }
+
+  return Meta.generate({
+    title: post.title,
+    description: post.summary,
+    baseURL: baseURL,
+    image: post.image || `/api/og/generate?title=${post.title}`,
+    path: `${blog.path}/${post.slug}`,
+  });
+}
+
+export default async function Blog({ params }: { params: Promise<{ slug: string | string[] }> }) {
+  const settings = await getPublicPortfolioSettings();
+  const routeParams = await params;
+  const slugPath = Array.isArray(routeParams.slug)
+    ? routeParams.slug.join("/")
+    : routeParams.slug || "";
+
+  const initialPosts = getLocalPosts();
+  const initialPost = initialPosts.find((post) => post.slug === slugPath) ?? null;
+
+  return (
+    <Row fillWidth>
+      <Row maxWidth={12} m={{ hide: true }} />
+      <Row fillWidth horizontal="center">
+        <Column as="section" maxWidth="m" horizontal="center" gap="l" paddingTop="24">
+          <Schema
+            as="blogPosting"
+            baseURL={baseURL}
+            path={`${blog.path}/${slugPath}`}
+            title={initialPost?.title ?? blog.title}
+            description={initialPost?.summary ?? blog.description}
+            datePublished={initialPost?.publishedAt}
+            dateModified={initialPost?.publishedAt}
+            image={initialPost?.image || `/api/og/generate?title=${encodeURIComponent(initialPost?.title ?? blog.title)}`}
+            author={{
+              name: settings.profile.name,
+              url: `${baseURL}/about`,
+              image: settings.profile.avatar?.startsWith("http")
+                ? settings.profile.avatar
+                : `${baseURL}${settings.profile.avatar}`,
+            }}
+          />
+          <PostDetailClient slug={slugPath} initialPost={initialPost} initialPosts={initialPosts} />
+        </Column>
+      </Row>
+      <Column
+        maxWidth={12}
+        paddingLeft="40"
+        fitHeight
+        position="sticky"
+        top="80"
+        gap="16"
+        m={{ hide: true }}
+      >
+        <HeadingNav fitHeight />
+      </Column>
+    </Row>
+  );
+}
