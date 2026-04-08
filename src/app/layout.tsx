@@ -17,6 +17,8 @@ import { Footer, Header, RouteGuard, Providers } from "@/components";
 import { baseURL, effects, fonts, style, dataStyle, home } from "@/resources";
 import { getAdminPortfolioSettings } from "@/lib/firebase/admin-portfolio";
 
+export const revalidate = 0;
+
 export async function generateMetadata() {
   const settings = await getAdminPortfolioSettings();
   return Meta.generate({

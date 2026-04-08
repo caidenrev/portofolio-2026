@@ -7,11 +7,6 @@ import {
   getAdminPortfolioSettings,
 } from "@/lib/firebase/admin-portfolio";
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = await getAdminPortfolioProjects();
-  return posts.map((post) => ({ slug: post.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
