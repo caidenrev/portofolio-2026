@@ -8,8 +8,8 @@ import { Fade, Flex, Line, Row, ToggleButton } from "@once-ui-system/core";
 import { routes, display, person, about, blog, work, gallery } from "@/resources";
 import { ThemeToggle } from "./ThemeToggle";
 import styles from "./Header.module.scss";
-import { getPortfolioSettings } from "@/lib/firebase/portfolio";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 
 type TimeDisplayProps = {
   timeZone: string;
@@ -46,22 +46,12 @@ export default TimeDisplay;
 
 export const Header = () => {
   const pathname = usePathname() ?? "";
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
   const [locationLabel, setLocationLabel] = useState(defaultPortfolioSettings.profile.location);
 
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const settings = await getPortfolioSettings();
-        if (settings?.profile.location) {
-          setLocationLabel(settings.profile.location);
-        }
-      } catch {
-        setLocationLabel(person.location);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+    setLocationLabel(settings.profile.location || person.location);
+  }, [settings.profile.location]);
 
   return (
     <>

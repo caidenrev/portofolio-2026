@@ -1,29 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Row, IconButton, SmartLink, Text } from "@once-ui-system/core";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
-import { getPortfolioSettings } from "@/lib/firebase/portfolio";
 import styles from "./Footer.module.scss";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const [settings, setSettings] = useState(defaultPortfolioSettings);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const firestoreSettings = await getPortfolioSettings();
-        if (firestoreSettings) {
-          setSettings(firestoreSettings);
-        }
-      } catch {
-        setSettings(defaultPortfolioSettings);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
 
   return (
     <Row as="footer" fillWidth padding="8" horizontal="center" s={{ direction: "column" }}>

@@ -48,6 +48,18 @@ export async function getPortfolioSettings() {
   return snapshot.exists() ? snapshot.data() : null;
 }
 
+export function subscribeToPortfolioSettings(
+  callback: (settings: PortfolioSettings | null) => void,
+) {
+  const settingsRef = doc(getFirebaseDb(), portfolioCollections.settings, "portfolio").withConverter(
+    firestoreConverter<PortfolioSettings>(),
+  );
+
+  return onSnapshot(settingsRef, (snapshot) => {
+    callback(snapshot.exists() ? snapshot.data() : null);
+  });
+}
+
 async function getCollectionItems<T>(collectionName: string) {
   const collectionRef = collection(getFirebaseDb(), collectionName).withConverter(
     firestoreConverter<T>(),

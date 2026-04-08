@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Card, Column, Media, Row, Avatar, Text } from "@once-ui-system/core";
 import { formatDate } from "@/utils/formatDate";
 import type { PortfolioPost } from "@/types";
-import { getPortfolioSettings } from "@/lib/firebase/portfolio";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 
 interface PostProps {
   post: PortfolioPost;
@@ -14,27 +14,12 @@ interface PostProps {
 }
 
 export default function Post({ post, thumbnail, direction }: PostProps) {
-  const [authorName, setAuthorName] = useState(defaultPortfolioSettings.profile.name);
-  const [authorAvatar, setAuthorAvatar] = useState(defaultPortfolioSettings.profile.avatar);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const settings = await getPortfolioSettings();
-        if (settings?.profile.name) {
-          setAuthorName(settings.profile.name);
-        }
-        if (settings?.profile.avatar) {
-          setAuthorAvatar(settings.profile.avatar);
-        }
-      } catch {
-        setAuthorName(defaultPortfolioSettings.profile.name);
-        setAuthorAvatar(defaultPortfolioSettings.profile.avatar);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
+  const authorName = settings.profile.name || defaultPortfolioSettings.profile.name;
+  const authorAvatar = useMemo(
+    () => settings.profile.avatar || defaultPortfolioSettings.profile.avatar,
+    [settings.profile.avatar],
+  );
 
   return (
     <Card

@@ -1,29 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Avatar, Button, Column, Heading, RevealFx, Row, Text } from "@once-ui-system/core";
 import { about } from "@/resources";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
-import { getPortfolioSettings } from "@/lib/firebase/portfolio";
-import { PortfolioSettings } from "@/types";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 
 export function HomeIntro() {
-  const [settings, setSettings] = useState<PortfolioSettings>(defaultPortfolioSettings);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const firestoreSettings = await getPortfolioSettings();
-        if (firestoreSettings) {
-          setSettings(firestoreSettings);
-        }
-      } catch {
-        setSettings(defaultPortfolioSettings);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
 
   return (
     <Column fillWidth horizontal="center" gap="m">

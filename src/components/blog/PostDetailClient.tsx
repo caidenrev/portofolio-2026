@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Avatar,
   Column,
@@ -16,10 +16,10 @@ import { formatDate } from "@/utils/formatDate";
 import { CustomMDX, ScrollToHash } from "@/components";
 import type { PortfolioPost } from "@/types";
 import {
-  getPortfolioSettings,
   subscribeToPortfolioPostBySlug,
 } from "@/lib/firebase/portfolio";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 import { Posts } from "./Posts";
 import { ShareSection } from "./ShareSection";
 
@@ -33,27 +33,12 @@ export function PostDetailClient({
   initialPosts?: PortfolioPost[];
 }) {
   const [post, setPost] = useState<PortfolioPost | null>(initialPost);
-  const [authorName, setAuthorName] = useState(defaultPortfolioSettings.profile.name);
-  const [authorAvatar, setAuthorAvatar] = useState(defaultPortfolioSettings.profile.avatar);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const settings = await getPortfolioSettings();
-        if (settings?.profile.name) {
-          setAuthorName(settings.profile.name);
-        }
-        if (settings?.profile.avatar) {
-          setAuthorAvatar(settings.profile.avatar);
-        }
-      } catch {
-        setAuthorName(defaultPortfolioSettings.profile.name);
-        setAuthorAvatar(defaultPortfolioSettings.profile.avatar);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
+  const authorName = settings.profile.name || defaultPortfolioSettings.profile.name;
+  const authorAvatar = useMemo(
+    () => settings.profile.avatar || defaultPortfolioSettings.profile.avatar,
+    [settings.profile.avatar],
+  );
 
   useEffect(() => {
     try {

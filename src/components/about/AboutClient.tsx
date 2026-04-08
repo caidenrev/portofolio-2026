@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Avatar,
   Button,
@@ -15,27 +14,12 @@ import {
 } from "@once-ui-system/core";
 import { about } from "@/resources";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
-import { getPortfolioSettings } from "@/lib/firebase/portfolio";
+import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
 import TableOfContents from "./TableOfContents";
 import styles from "./about.module.scss";
 
 export function AboutClient() {
-  const [settings, setSettings] = useState(defaultPortfolioSettings);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const firestoreSettings = await getPortfolioSettings();
-        if (firestoreSettings) {
-          setSettings(firestoreSettings);
-        }
-      } catch {
-        setSettings(defaultPortfolioSettings);
-      }
-    };
-
-    void loadSettings();
-  }, []);
+  const settings = usePortfolioSettings(defaultPortfolioSettings);
 
   const structure = [
     { title: settings.profile.introTitle, display: true, items: [] },
