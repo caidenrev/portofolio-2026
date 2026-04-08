@@ -186,6 +186,26 @@ export function DashboardClient() {
   >("site");
   const [importingSeed, setImportingSeed] = useState(false);
 
+  const persistSettings = async (nextSettings: PortfolioSettings, successMessage: string) => {
+    setSubmitting(true);
+    try {
+      await savePortfolioSettings(nextSettings);
+      setSettings(nextSettings);
+      addToast({
+        variant: "success",
+        message: successMessage,
+      });
+    } catch (saveError) {
+      addToast({
+        variant: "danger",
+        message: saveError instanceof Error ? saveError.message : "Gagal menyimpan settings.",
+      });
+      throw saveError;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     let auth: Auth;
     try {
@@ -344,24 +364,10 @@ export function DashboardClient() {
   };
 
   const handleSaveSettings = async () => {
-    setSubmitting(true);
-    try {
-      await savePortfolioSettings(settings);
-      addToast({
-        variant: "success",
-        message: "Settings portfolio berhasil disimpan.",
-      });
-    } catch (saveError) {
-      addToast({
-        variant: "danger",
-        message: saveError instanceof Error ? saveError.message : "Gagal menyimpan settings.",
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    await persistSettings(settings, "Settings portfolio berhasil disimpan.");
   };
 
-  const handleSaveSocialLink = () => {
+  const handleSaveSocialLink = async () => {
     const id = socialDraft.id || socialDraft.name.toLowerCase().replace(/\s+/g, "-");
     const nextLinks = [...settings.socialLinks];
     const existingIndex = nextLinks.findIndex((item) => item.id === id);
@@ -373,24 +379,28 @@ export function DashboardClient() {
       nextLinks.push(socialLink);
     }
 
-    setSettings((current) => ({
-      ...current,
+    const nextSettings = {
+      ...settings,
       socialLinks: nextLinks.sort((left, right) => (left.order ?? 0) - (right.order ?? 0)),
-    }));
+    };
+
+    await persistSettings(nextSettings, "Social links berhasil disimpan.");
     setSocialDraft(emptySocialLink);
   };
 
-  const handleDeleteSocialLink = (id: string) => {
-    setSettings((current) => ({
-      ...current,
-      socialLinks: current.socialLinks.filter((item) => item.id !== id),
-    }));
+  const handleDeleteSocialLink = async (id: string) => {
+    const nextSettings = {
+      ...settings,
+      socialLinks: settings.socialLinks.filter((item) => item.id !== id),
+    };
+
+    await persistSettings(nextSettings, "Social link berhasil dihapus.");
     if (socialDraft.id === id) {
       setSocialDraft(emptySocialLink);
     }
   };
 
-  const handleSaveExperience = () => {
+  const handleSaveExperience = async () => {
     const nextItems = [...settings.experiences];
     const existingIndex = nextItems.findIndex(
       (item) => item.company === experienceDraft.company && item.role === experienceDraft.role,
@@ -402,20 +412,23 @@ export function DashboardClient() {
       nextItems.push(experienceDraft);
     }
 
-    setSettings((current) => ({ ...current, experiences: nextItems }));
+    const nextSettings = { ...settings, experiences: nextItems };
+    await persistSettings(nextSettings, "Work experience berhasil disimpan.");
     setExperienceDraft(emptyExperience);
   };
 
-  const handleDeleteExperience = (company: string, role: string) => {
-    setSettings((current) => ({
-      ...current,
-      experiences: current.experiences.filter(
+  const handleDeleteExperience = async (company: string, role: string) => {
+    const nextSettings = {
+      ...settings,
+      experiences: settings.experiences.filter(
         (item) => !(item.company === company && item.role === role),
       ),
-    }));
+    };
+
+    await persistSettings(nextSettings, "Work experience berhasil dihapus.");
   };
 
-  const handleSaveStudy = () => {
+  const handleSaveStudy = async () => {
     const nextItems = [...settings.studies];
     const existingIndex = nextItems.findIndex((item) => item.name === studyDraft.name);
 
@@ -425,18 +438,21 @@ export function DashboardClient() {
       nextItems.push(studyDraft);
     }
 
-    setSettings((current) => ({ ...current, studies: nextItems }));
+    const nextSettings = { ...settings, studies: nextItems };
+    await persistSettings(nextSettings, "Studies berhasil disimpan.");
     setStudyDraft(emptyStudy);
   };
 
-  const handleDeleteStudy = (name: string) => {
-    setSettings((current) => ({
-      ...current,
-      studies: current.studies.filter((item) => item.name !== name),
-    }));
+  const handleDeleteStudy = async (name: string) => {
+    const nextSettings = {
+      ...settings,
+      studies: settings.studies.filter((item) => item.name !== name),
+    };
+
+    await persistSettings(nextSettings, "Study berhasil dihapus.");
   };
 
-  const handleSaveSkill = () => {
+  const handleSaveSkill = async () => {
     const nextItems = [...settings.skills];
     const existingIndex = nextItems.findIndex((item) => item.title === skillDraft.title);
 
@@ -446,15 +462,18 @@ export function DashboardClient() {
       nextItems.push(skillDraft);
     }
 
-    setSettings((current) => ({ ...current, skills: nextItems }));
+    const nextSettings = { ...settings, skills: nextItems };
+    await persistSettings(nextSettings, "Skill berhasil disimpan.");
     setSkillDraft(emptySkill);
   };
 
-  const handleDeleteSkill = (title: string) => {
-    setSettings((current) => ({
-      ...current,
-      skills: current.skills.filter((item) => item.title !== title),
-    }));
+  const handleDeleteSkill = async (title: string) => {
+    const nextSettings = {
+      ...settings,
+      skills: settings.skills.filter((item) => item.title !== title),
+    };
+
+    await persistSettings(nextSettings, "Skill berhasil dihapus.");
   };
 
   const handleSaveProject = async () => {
