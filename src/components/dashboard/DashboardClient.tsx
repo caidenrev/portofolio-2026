@@ -170,6 +170,10 @@ export function DashboardClient() {
 
   const [loadingData, setLoadingData] = useState(false);
   const [settings, setSettings] = useState<PortfolioSettings>(defaultPortfolioSettings);
+  const [settingsReady, setSettingsReady] = useState(false);
+  const [lastSavedSettingsJson, setLastSavedSettingsJson] = useState(
+    JSON.stringify(defaultPortfolioSettings),
+  );
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [posts, setPosts] = useState<PortfolioPost[]>([]);
   const [galleryItems, setGalleryItems] = useState<PortfolioGalleryItem[]>([]);
@@ -191,6 +195,7 @@ export function DashboardClient() {
     try {
       await savePortfolioSettings(nextSettings);
       setSettings(nextSettings);
+      setLastSavedSettingsJson(JSON.stringify(nextSettings));
       addToast({
         variant: "success",
         message: successMessage,
@@ -263,6 +268,7 @@ export function DashboardClient() {
 
   useEffect(() => {
     if (!currentUser) {
+      setSettingsReady(false);
       return;
     }
 
@@ -278,6 +284,7 @@ export function DashboardClient() {
           ]);
 
         setSettings(portfolioSettings ?? defaultPortfolioSettings);
+        setLastSavedSettingsJson(JSON.stringify(portfolioSettings ?? defaultPortfolioSettings));
         setProjects(
           [...portfolioProjects].sort((left, right) =>
             right.publishedAt.localeCompare(left.publishedAt),
@@ -289,6 +296,7 @@ export function DashboardClient() {
         setGalleryItems(
           [...portfolioGallery].sort((left, right) => (left.order ?? 0) - (right.order ?? 0)),
         );
+        setSettingsReady(true);
       } catch (loadError) {
         addToast({
           variant: "danger",
@@ -301,6 +309,35 @@ export function DashboardClient() {
 
     void loadDashboardData();
   }, [currentUser, addToast]);
+
+  useEffect(() => {
+    if (!currentUser || !settingsReady) {
+      return;
+    }
+
+    const nextSettingsJson = JSON.stringify(settings);
+    if (nextSettingsJson === lastSavedSettingsJson) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      void savePortfolioSettings(settings)
+        .then(() => {
+          setLastSavedSettingsJson(nextSettingsJson);
+        })
+        .catch((saveError) => {
+          addToast({
+            variant: "danger",
+            message:
+              saveError instanceof Error
+                ? saveError.message
+                : "Gagal autosave settings dashboard.",
+          });
+        });
+    }, 800);
+
+    return () => clearTimeout(timeout);
+  }, [addToast, currentUser, lastSavedSettingsJson, settings, settingsReady]);
 
   useEffect(() => {
     if (!currentUser) {

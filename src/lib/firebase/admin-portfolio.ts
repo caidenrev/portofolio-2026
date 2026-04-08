@@ -1,6 +1,4 @@
-import { getFirestore } from "firebase-admin/firestore";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
-import { getFirebaseAdminApp } from "./admin";
 import {
   getPublicPortfolioPosts,
   getPublicPortfolioProjects,
@@ -8,13 +6,19 @@ import {
 } from "@/lib/firestore-rest";
 import type { PortfolioPost, PortfolioProject, PortfolioSettings } from "@/types";
 
-function getAdminDb() {
+async function getAdminDb() {
+  const [{ getFirestore }, { getFirebaseAdminApp }] = await Promise.all([
+    import("firebase-admin/firestore"),
+    import("./admin"),
+  ]);
+
   return getFirestore(getFirebaseAdminApp());
 }
 
 export async function getAdminPortfolioSettings() {
   try {
-    const snapshot = await getAdminDb().collection("settings").doc("portfolio").get();
+    const adminDb = await getAdminDb();
+    const snapshot = await adminDb.collection("settings").doc("portfolio").get();
     if (!snapshot.exists) {
       return defaultPortfolioSettings;
     }
@@ -28,7 +32,8 @@ export async function getAdminPortfolioSettings() {
 
 export async function getAdminPortfolioPosts() {
   try {
-    const snapshot = await getAdminDb().collection("posts").get();
+    const adminDb = await getAdminDb();
+    const snapshot = await adminDb.collection("posts").get();
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Array<
       PortfolioPost & { id: string }
     >;
@@ -40,7 +45,8 @@ export async function getAdminPortfolioPosts() {
 
 export async function getAdminPortfolioProjects() {
   try {
-    const snapshot = await getAdminDb().collection("projects").get();
+    const adminDb = await getAdminDb();
+    const snapshot = await adminDb.collection("projects").get();
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Array<
       PortfolioProject & { id: string }
     >;
