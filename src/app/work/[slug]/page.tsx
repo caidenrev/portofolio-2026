@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 import { Meta, Schema, Column } from "@once-ui-system/core";
 import { baseURL, work } from "@/resources";
 import type { Metadata } from "next";

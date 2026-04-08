@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 import { Button, Column, Row } from "@once-ui-system/core";
 import { baseURL } from "@/resources";
 import { Meta, Schema } from "@once-ui-system/core";
