@@ -49,7 +49,6 @@ export function ProjectsEditorSection({
           <Input id="project-date" label="Published at" value={projectDraft.publishedAt} onChange={(event) => onDraftChange((current) => ({ ...current, publishedAt: event.target.value }))} />
           <Input id="project-tag" label="Tag" value={projectDraft.tag ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, tag: event.target.value }))} />
           <Input id="project-link" label="Project URL" value={projectDraft.link ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, link: event.target.value }))} />
-          <Input id="project-image" label="Cover image" value={projectDraft.image ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, image: event.target.value }))} />
           {projectDraft.image && (
             <Media
               src={projectDraft.image}
@@ -61,6 +60,11 @@ export function ProjectsEditorSection({
           )}
           <Row gap="12" wrap>
             <CloudinaryUploadButton label="Upload cover image" onUploaded={(url) => onDraftChange((current) => ({ ...current, image: url }))} />
+            {projectDraft.image && (
+              <Button variant="secondary" onClick={() => onDraftChange((current) => ({ ...current, image: "" }))}>
+                Remove cover image
+              </Button>
+            )}
           </Row>
           <MediaListField
             id="project-images"

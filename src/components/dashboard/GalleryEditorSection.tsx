@@ -122,19 +122,25 @@ export function GalleryEditorSection({
           radius="l"
           padding="20"
         >
-          <Input
-            id="gallery-src"
-            label="Image URL"
-            value={galleryDraft.src}
-            onChange={(event) =>
-              onDraftChange((current) => ({ ...current, src: event.target.value }))
-            }
-          />
+          {galleryDraft.src && (
+            <Media
+              src={galleryDraft.src}
+              alt={galleryDraft.alt || "Gallery media"}
+              aspectRatio={galleryDraft.orientation === "vertical" ? "3 / 4" : "4 / 3"}
+              radius="m"
+              sizes="320px"
+            />
+          )}
           <Row gap="12" wrap>
             <CloudinaryUploadButton
               label="Upload gallery media"
               onUploaded={(url) => onDraftChange((current) => ({ ...current, src: url }))}
             />
+            {galleryDraft.src && (
+              <Button variant="secondary" onClick={() => onDraftChange((current) => ({ ...current, src: "" }))}>
+                Remove media
+              </Button>
+            )}
           </Row>
           <Input
             id="gallery-alt"

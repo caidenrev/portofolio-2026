@@ -69,17 +69,6 @@ export function ProfileSettingsSection({
             }
           />
         </Row>
-        <Input
-          id="profile-avatar"
-          label="Avatar URL"
-          value={settings.profile.avatar}
-          onChange={(event) =>
-            onSettingsChange((current) => ({
-              ...current,
-              profile: { ...current.profile, avatar: event.target.value },
-            }))
-          }
-        />
         {settings.profile.avatar && (
           <Row gap="12" vertical="center">
             <Avatar src={settings.profile.avatar} size="l" />
@@ -95,6 +84,19 @@ export function ProfileSettingsSection({
               }))
             }
           />
+          {settings.profile.avatar && (
+            <Button
+              variant="secondary"
+              onClick={() =>
+                onSettingsChange((current) => ({
+                  ...current,
+                  profile: { ...current.profile, avatar: "" },
+                }))
+              }
+            >
+              Remove avatar
+            </Button>
+          )}
         </Row>
         <Textarea
           id="profile-headline"

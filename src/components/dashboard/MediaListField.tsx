@@ -125,19 +125,6 @@ export function MediaListField({
           </Row>
         </Column>
       )}
-      <Textarea
-        id={id}
-        label={label}
-        value={values.join("\n")}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-              .split("\n")
-              .map((item) => item.trim())
-              .filter(Boolean),
-          )
-        }
-      />
     </>
   );
 }

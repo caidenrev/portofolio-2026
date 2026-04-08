@@ -66,7 +66,6 @@ export function PostsEditorSection({
           <Input id="post-title" label="Title" value={postDraft.title} onChange={(event) => onDraftChange((current) => ({ ...current, title: event.target.value }))} />
           <Input id="post-subtitle" label="Subtitle" value={postDraft.subtitle ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, subtitle: event.target.value }))} />
           <Input id="post-date" label="Published at" value={postDraft.publishedAt} onChange={(event) => onDraftChange((current) => ({ ...current, publishedAt: event.target.value }))} />
-          <Input id="post-image" label="Thumbnail image" value={postDraft.image ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, image: event.target.value }))} />
           {postDraft.image && (
             <Media
               src={postDraft.image}
@@ -78,6 +77,11 @@ export function PostsEditorSection({
           )}
           <Row gap="12" wrap>
             <CloudinaryUploadButton label="Upload thumbnail" onUploaded={(url) => onDraftChange((current) => ({ ...current, image: url }))} />
+            {postDraft.image && (
+              <Button variant="secondary" onClick={() => onDraftChange((current) => ({ ...current, image: "" }))}>
+                Remove thumbnail
+              </Button>
+            )}
           </Row>
           <Input id="post-tag" label="Tag" value={postDraft.tag ?? ""} onChange={(event) => onDraftChange((current) => ({ ...current, tag: event.target.value }))} />
           <Row gap="12">
