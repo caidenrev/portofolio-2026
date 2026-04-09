@@ -80,7 +80,7 @@ export default async function Home() {
               </Badge>
             </RevealFx>
           )}
-          <HomeIntro />
+          <HomeIntro initialSettings={settings} />
         </Column>
       </Column>
       <RevealFx translateY="16" delay={0.6}>

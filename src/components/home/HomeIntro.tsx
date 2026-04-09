@@ -4,9 +4,10 @@ import { Avatar, Button, Column, Heading, RevealFx, Row, Text } from "@once-ui-s
 import { about } from "@/resources";
 import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
 import { usePortfolioSettings } from "@/lib/firebase/use-portfolio-settings";
+import type { PortfolioSettings } from "@/types";
 
-export function HomeIntro() {
-  const settings = usePortfolioSettings(defaultPortfolioSettings);
+export function HomeIntro({ initialSettings }: { initialSettings?: PortfolioSettings }) {
+  const settings = usePortfolioSettings(initialSettings || defaultPortfolioSettings);
 
   return (
     <Column fillWidth horizontal="center" gap="m">
