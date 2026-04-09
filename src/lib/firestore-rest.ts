@@ -1,4 +1,4 @@
-import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { defaultPortfolioSettings, mergePortfolioSettings } from "@/lib/portfolio-defaults";
 import type { PortfolioPost, PortfolioProject, PortfolioSettings } from "@/types";
 
 type FirestoreValue =
@@ -71,7 +71,8 @@ export async function getPublicPortfolioSettings() {
     }
 
     const document = (await response.json()) as FirestoreDocument;
-    return decodeFirestoreDocument<PortfolioSettings>(document);
+    const data = decodeFirestoreDocument<PortfolioSettings>(document);
+    return mergePortfolioSettings(defaultPortfolioSettings, data);
   } catch {
     return defaultPortfolioSettings;
   }

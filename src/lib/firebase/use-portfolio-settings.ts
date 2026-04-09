@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { defaultPortfolioSettings, mergePortfolioSettings } from "@/lib/portfolio-defaults";
 import type { PortfolioSettings } from "@/types";
 import { getPortfolioSettings, subscribeToPortfolioSettings } from "./portfolio";
 
@@ -15,7 +15,7 @@ export function usePortfolioSettings(initialSettings: PortfolioSettings = defaul
       try {
         const firestoreSettings = await getPortfolioSettings();
         if (isMounted && firestoreSettings) {
-          setSettings(firestoreSettings);
+          setSettings(mergePortfolioSettings(initialSettings, firestoreSettings));
         }
       } catch {
         if (isMounted) {
@@ -29,7 +29,7 @@ export function usePortfolioSettings(initialSettings: PortfolioSettings = defaul
     try {
       const unsubscribe = subscribeToPortfolioSettings((firestoreSettings) => {
         if (firestoreSettings) {
-          setSettings(firestoreSettings);
+          setSettings(mergePortfolioSettings(initialSettings, firestoreSettings));
         }
       });
 

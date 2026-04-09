@@ -27,7 +27,7 @@ import {
   updatePortfolioPost,
   updatePortfolioProject,
 } from "@/lib/firebase/portfolio";
-import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { defaultPortfolioSettings, mergePortfolioSettings } from "@/lib/portfolio-defaults";
 import { slugify } from "@/lib/slugify";
 import { DashboardLoginCard } from "./DashboardLoginCard";
 import { DashboardStatusCard } from "./DashboardStatusCard";
@@ -283,8 +283,9 @@ export function DashboardClient() {
             getPortfolioGallery(),
           ]);
 
-        setSettings(portfolioSettings ?? defaultPortfolioSettings);
-        setLastSavedSettingsJson(JSON.stringify(portfolioSettings ?? defaultPortfolioSettings));
+        const mergedSettings = portfolioSettings ? mergePortfolioSettings(defaultPortfolioSettings, portfolioSettings) : defaultPortfolioSettings;
+        setSettings(mergedSettings);
+        setLastSavedSettingsJson(JSON.stringify(mergedSettings));
         setProjects(
           [...portfolioProjects].sort((left, right) =>
             right.publishedAt.localeCompare(left.publishedAt),
@@ -310,34 +311,7 @@ export function DashboardClient() {
     void loadDashboardData();
   }, [currentUser, addToast]);
 
-  useEffect(() => {
-    if (!currentUser || !settingsReady) {
-      return;
-    }
 
-    const nextSettingsJson = JSON.stringify(settings);
-    if (nextSettingsJson === lastSavedSettingsJson) {
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      void savePortfolioSettings(settings)
-        .then(() => {
-          setLastSavedSettingsJson(nextSettingsJson);
-        })
-        .catch((saveError) => {
-          addToast({
-            variant: "danger",
-            message:
-              saveError instanceof Error
-                ? saveError.message
-                : "Gagal autosave settings dashboard.",
-          });
-        });
-    }, 800);
-
-    return () => clearTimeout(timeout);
-  }, [addToast, currentUser, lastSavedSettingsJson, settings, settingsReady]);
 
   useEffect(() => {
     if (!currentUser) {

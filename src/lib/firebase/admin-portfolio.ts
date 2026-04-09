@@ -1,4 +1,4 @@
-import { defaultPortfolioSettings } from "@/lib/portfolio-defaults";
+import { defaultPortfolioSettings, mergePortfolioSettings } from "@/lib/portfolio-defaults";
 import {
   getPublicPortfolioPosts,
   getPublicPortfolioProjects,
@@ -23,7 +23,7 @@ export async function getAdminPortfolioSettings() {
       return defaultPortfolioSettings;
     }
 
-    return snapshot.data() as PortfolioSettings;
+    return mergePortfolioSettings(defaultPortfolioSettings, snapshot.data() as PortfolioSettings);
   } catch (error) {
     console.error("Admin settings fetch failed, falling back to public Firestore fetch.", error);
     return getPublicPortfolioSettings();
