@@ -47,7 +47,9 @@ export default TimeDisplay;
 export const Header = () => {
   const pathname = usePathname() ?? "";
   const settings = usePortfolioSettings(defaultPortfolioSettings);
-  const [locationLabel, setLocationLabel] = useState(defaultPortfolioSettings.profile.location);
+  const [locationLabel, setLocationLabel] = useState(
+    settings.profile.location || person.location
+  );
 
   useEffect(() => {
     setLocationLabel(settings.profile.location || person.location);
